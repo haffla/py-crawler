@@ -9,7 +9,8 @@ class CrawlerTest(unittest.TestCase):
         dicto, urls = Crawling(base, seed).get_links()
 
         self.assertEqual(len(dicto['classification']), 3)
-        self.assertEqual(urls[dicto['classification'][0][0]], 'http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/smdocs/d06.html')
+        self.assertTrue(urls[dicto['classification'][0][0]].endswith("d06.html"))
+        self.assertTrue(len(dicto) == 102)
 
 
 if __name__ == '__main__':
