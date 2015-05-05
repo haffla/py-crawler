@@ -1,14 +1,15 @@
 import urllib.request, re
+import requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from src.util.textwrangler import TextWrangler
 
 
 class Crawling():
-
     visited = []
     stopwords = []
     dictionary = {}
+    damping_factor = 0.9
 
     def __init__(self, base_url, seed_list):
         self.url_list = [base_url + site for site in seed_list]
@@ -22,6 +23,33 @@ class Crawling():
             html = response.read()
             self.visited.append(url)
             return html
+
+    def get_ego_links(self, url_list):
+        for site in url_list:
+            amount_of_all_links = len(url_list)
+            start_page_rank = 1 / amount_of_all_links
+            base = "http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/smdocs/"
+            result = 0
+            url = site
+
+            source_code = requests.get(url)
+            plain_text = source_code.text
+            soup = BeautifulSoup(plain_text)
+
+            for page in soup.find_all('a'):
+                ego_link = page.get('href')
+                crawl_me = base + ego_link
+                sc = requests.get(crawl_me)
+                sc_plain_text = sc.text
+                ego_soup = BeautifulSoup(sc_plain_text)
+                amount_of_links = len(ego_soup.find_all('a'))
+                result = result + start_page_rank / amount_of_links
+            self.calculate_pagerank(result, url_list)
+
+    def calculate_pagerank(self, sum_of_ego_links, url_list):
+        # (1 - t / N) +  d * (( sum ( ofAllPagesThatHasALinkOfPage01 / AmountOfLinks ) + sum ( ofAllPagesThatHasNoLinkOfPage01 / N ) ) )
+        pagerank_result = ((1 - self.damping_factor) / len(url_list)) + (self.damping_factor * (sum_of_ego_links) )
+        print(pagerank_result)
 
     def get_links(self):
         i = 0
@@ -44,5 +72,5 @@ class Crawling():
 
                 i += 1
                 # end of for loop over url_list
-
+        self.get_ego_links(self.url_list)
         return self.dictionary, self.url_list
