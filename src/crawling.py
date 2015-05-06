@@ -1,5 +1,6 @@
 import urllib.request, re
 import math
+import requests;
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from src.util.textwrangler import TextWrangler
@@ -27,19 +28,26 @@ class Crawling():
             self.visited.append(url)
             return html
 
-    def get_ego_links(self, url_list):
+    def get_sites_with_links_to_me(self, url_list):
         start_page_rank = 1 / len(url_list)
         for url in url_list:
             result = 0
             for page in self.links_dictionary[url]:
-                # TODO: Check if links shows to me (ex: d01.html == d01.html? goToSiteAndCheckNumberOfLinks : Ignore)
-                amount_of_links = len(self.links_dictionary[self.base_url + page])
-                result += start_page_rank / amount_of_links
+
+                site = self.retrieve_site(self.base_url + page)
+                soup = BeautifulSoup(site)
+                links_on_page = soup.find_all('a')
+
+                for l in links_on_page:
+                    current_link = l.get('href')
+                    if url == self.base_url + current_link:
+                        amount_of_links = len(self.links_dictionary[self.base_url + page])
+                        result += start_page_rank / amount_of_links
             self.calculate_pagerank(result, url)
 
 
     def calculate_pagerank(self, sum_of_ego_links, site):
-        # (1 - t / N) +  d * (( sum ( ofAllPagesThatHasALinkOfPage01 / AmountOfLinks ) + sum ( ofAllPagesThatHasNoLinkOfPage01 / N ) ) )
+        # Implementation of pagerank calculation
         pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * ((sum_of_ego_links) + (0.1250 / 8)) )
         print(site, math.ceil( pagerank_result * 10000) / 10000 )
 
@@ -69,5 +77,5 @@ class Crawling():
 
                 i += 1
                 # end of for loop over url_list
-        self.get_ego_links(self.url_list)
+        self.get_sites_with_links_to_me(self.url_list)
         return self.words_dictionary, self.url_list
