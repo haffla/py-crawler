@@ -1,5 +1,4 @@
-import urllib.request, re
-import requests
+import urllib.request, re, requests
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from src.util.textwrangler import TextWrangler
@@ -8,10 +7,12 @@ from src.util.textwrangler import TextWrangler
 class Crawling():
     visited = []
     stopwords = []
-    dictionary = {}
+    words_dictionary = {}
     damping_factor = 0.9
+    base_url = ""
 
     def __init__(self, base_url, seed_list):
+        self.base_url = base_url
         self.url_list = [base_url + site for site in seed_list]
         stopwords_request = urllib.request.urlopen("http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/stop_words.txt")
         stopwords = stopwords_request.read().decode('utf-8')
@@ -25,30 +26,27 @@ class Crawling():
             return html
 
     def get_ego_links(self, url_list):
-        for site in url_list:
-            amount_of_all_links = len(url_list)
-            start_page_rank = 1 / amount_of_all_links
-            base = "http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/smdocs/"
+        start_page_rank = 1 / len(url_list)
+        for url in url_list:
             result = 0
-            url = site
-
             source_code = requests.get(url)
             plain_text = source_code.text
             soup = BeautifulSoup(plain_text)
 
             for page in soup.find_all('a'):
                 ego_link = page.get('href')
-                crawl_me = base + ego_link
+                crawl_me = self.base_url + ego_link
                 sc = requests.get(crawl_me)
                 sc_plain_text = sc.text
                 ego_soup = BeautifulSoup(sc_plain_text)
                 amount_of_links = len(ego_soup.find_all('a'))
-                result = result + start_page_rank / amount_of_links
+                result += start_page_rank / amount_of_links
+
             self.calculate_pagerank(result, url_list)
 
     def calculate_pagerank(self, sum_of_ego_links, url_list):
         # (1 - t / N) +  d * (( sum ( ofAllPagesThatHasALinkOfPage01 / AmountOfLinks ) + sum ( ofAllPagesThatHasNoLinkOfPage01 / N ) ) )
-        pagerank_result = ((1 - self.damping_factor) / len(url_list)) + (self.damping_factor * (sum_of_ego_links) )
+        pagerank_result = ((1 - self.damping_factor) / len(url_list)) + (self.damping_factor * sum_of_ego_links)
         print(pagerank_result)
 
     def get_links(self):
@@ -63,7 +61,7 @@ class Crawling():
 
                 tokens = TextWrangler.tokenize(text)
 
-                TextWrangler.build_dict(tokens, self.dictionary, self.stopwords, i)
+                TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, i)
 
                 for link in soup.find_all('a'):
                     l = urllib.parse.urljoin(url, str(link.get('href')))
@@ -73,4 +71,4 @@ class Crawling():
                 i += 1
                 # end of for loop over url_list
         self.get_ego_links(self.url_list)
-        return self.dictionary, self.url_list
+        return self.words_dictionary, self.url_list
