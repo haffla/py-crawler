@@ -8,6 +8,7 @@ class Crawling():
     visited = []
     stopwords = []
     words_dictionary = {}
+    links_dictionary = {}
     damping_factor = 0.9
     base_url = ""
 
@@ -29,19 +30,9 @@ class Crawling():
         start_page_rank = 1 / len(url_list)
         for url in url_list:
             result = 0
-            source_code = requests.get(url)
-            plain_text = source_code.text
-            soup = BeautifulSoup(plain_text)
-
-            for page in soup.find_all('a'):
-                ego_link = page.get('href')
-                crawl_me = self.base_url + ego_link
-                sc = requests.get(crawl_me)
-                sc_plain_text = sc.text
-                ego_soup = BeautifulSoup(sc_plain_text)
-                amount_of_links = len(ego_soup.find_all('a'))
+            for page in self.links_dictionary[url]:
+                amount_of_links = len(self.links_dictionary[self.base_url + page])
                 result += start_page_rank / amount_of_links
-
             self.calculate_pagerank(result, url_list)
 
     def calculate_pagerank(self, sum_of_ego_links, url_list):
@@ -63,7 +54,11 @@ class Crawling():
 
                 TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, i)
 
-                for link in soup.find_all('a'):
+                links_on_page = soup.find_all('a')
+                # put every url in links_dictionary and store all links on that particular url
+                # thus, we can calculate pageRank later more easily
+                self.links_dictionary[url] = [str(a.get('href')) for a in links_on_page]
+                for link in links_on_page:
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
