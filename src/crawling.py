@@ -39,7 +39,7 @@ class Crawling():
 
             for link in soup.find_all('a'):
                 link_to_me = link.get('href')
-
+                # TODO: Check if links shows to me (ex: d01.html == d01.html? goToSiteAndCheckNumberOfLinks : Ignore)
                 crawl_me = base + link_to_me
                 sc = requests.get(crawl_me)
                 sc_plain_text = sc.text
