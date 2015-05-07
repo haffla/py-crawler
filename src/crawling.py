@@ -12,8 +12,8 @@ class Crawling():
     # meaning d02's pagerank for step 1 is 0.11 and for step 2 is 0.21
     pageRanks = {}
     # holds unique normalized words pointing to document where they occur + number of each occurrence
-    # for instance: 'classification' => 'each': [(5, 1), (7, 1)]; meaning the word 'each' occurs once
-    # in document 5 and once in document 7. the url of document 5 would be url_list[5].
+    # for instance: 'classification' => 'each': [('d01', 1), ('d02', 2)]; meaning the word 'each' occurs once
+    # in document d01 and twice in document d02.
     words_dictionary = {}
     # holds all links of all sites, for instance: 'd01' => ['d02', 'd03', 'd05']
     links_dictionary = {}
@@ -72,6 +72,7 @@ class Crawling():
             res = res.get(step, None)
         return res
 
+    # TODO: Find better name
     def get_links(self):
         for url in self.url_list:
             if url not in self.visited:
@@ -93,5 +94,5 @@ class Crawling():
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
-                # end of for loop over url_list
+
         return self.words_dictionary, self.url_list
