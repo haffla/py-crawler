@@ -57,7 +57,7 @@ class Crawling():
                 # get text from html document
                 text = soup.get_text()
                 tokens = TextWrangler.tokenize(text)
-                TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, i)
+                TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, i, url)
                 links_on_page = soup.find_all('a')
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily

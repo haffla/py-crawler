@@ -1,6 +1,7 @@
 import unittest
 from src.crawling import Crawling
 
+
 class CrawlerTest(unittest.TestCase):
 
     def test_dict(self):
@@ -9,7 +10,7 @@ class CrawlerTest(unittest.TestCase):
         dicto, urls = Crawling(base, seed).get_links()
 
         self.assertEqual(len(dicto['classification']), 3)
-        self.assertTrue(urls[dicto['classification'][0][0]].endswith("d06.html"))
+        self.assertEqual(dicto['classification'][0][0], "d06")
         self.assertTrue(len(dicto) == 102)
 
 

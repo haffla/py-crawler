@@ -9,13 +9,24 @@ class TextWrangler(object):
         return [w.lower() for w in words if w != ""]
 
     @staticmethod
-    def build_dict(tokens, dictionary, stopwords, i):
+    def build_dict(tokens, dictionary, stopwords, i, url):
         for t in tokens:
             if t not in stopwords:
                 occurrences = tokens.count(t)
+                site_id = TextWrangler.get_last_part_of_url(url)
                 if t not in dictionary:
-                    dictionary[t] = [(i, occurrences)]
+                    dictionary[t] = [(site_id, occurrences)]
                 else:
                     ids = [j[0] for j in dictionary[t]]
-                    if i not in ids:
-                        dictionary[t].append((i, occurrences))
+                    if site_id not in ids:
+                        dictionary[t].append((site_id, occurrences))
+
+    @staticmethod
+    def get_last_part_of_url(url):
+        if url[-1] == '/':
+            # remove trailing slash
+            url = url[:-1]
+        last_part = url.split("/")[-1]
+        if last_part.find('.') != -1:
+            last_part = last_part.split('.')[0]
+        return last_part
