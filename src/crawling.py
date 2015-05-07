@@ -1,6 +1,4 @@
-import urllib.request, re
-import math
-import requests;
+import urllib.request, re, math
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from src.util.textwrangler import TextWrangler
