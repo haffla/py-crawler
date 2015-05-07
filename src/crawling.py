@@ -33,15 +33,10 @@ class Crawling():
         for url in url_list:
             result = 0
             for page in self.links_dictionary[url]:
-
-                site = self.retrieve_site(self.base_url + page)
-                soup = BeautifulSoup(site)
-                links_on_page = soup.find_all('a')
-
+                links_on_page = self.links_dictionary[page]
                 for l in links_on_page:
-                    current_link = l.get('href')
-                    if url == self.base_url + current_link:
-                        amount_of_links = len(self.links_dictionary[self.base_url + page])
+                    if url == l:
+                        amount_of_links = len(self.links_dictionary[page])
                         result += start_page_rank / amount_of_links
             self.calculate_pagerank(result, url)
 
@@ -60,15 +55,13 @@ class Crawling():
 
                 # get text from html document
                 text = soup.get_text()
-
                 tokens = TextWrangler.tokenize(text)
-
                 TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, i)
-
                 links_on_page = soup.find_all('a')
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily
-                self.links_dictionary[url] = [str(a.get('href')) for a in links_on_page]
+                # of course concatenating the href with base_url does only work if the href is not a uri itself
+                self.links_dictionary[url] = [self.base_url + str(a.get('href')) for a in links_on_page]
 
                 for link in links_on_page:
                     l = urllib.parse.urljoin(url, str(link.get('href')))
