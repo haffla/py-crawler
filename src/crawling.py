@@ -7,7 +7,11 @@ from src.util.textwrangler import TextWrangler
 class Crawling():
     visited = []
     stopwords = []
+    # holds unique normalized words pointing to document where they occur + number of each occurrence
+    # for instance: 'classification' => 'each': [(5, 1), (7, 1)]; meaning the word 'each' occurs once
+    # in document 5 and once in document 7. the url of document 5 would be url_list[5].
     words_dictionary = {}
+    # holds all links of all sites, for instance: 'd01' => ['d02', 'd03', 'd05']
     links_dictionary = {}
     damping_factor = 0.95
     base_url = ""
@@ -37,7 +41,6 @@ class Crawling():
                         amount_of_links = len(self.links_dictionary[page])
                         result += start_page_rank / amount_of_links
             self.calculate_pagerank(result, url)
-
 
     def calculate_pagerank(self, sum_of_ego_links, site):
         # Implementation of pagerank calculation
