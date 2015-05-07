@@ -9,7 +9,7 @@ class TextWrangler(object):
         return [w.lower() for w in words if w != ""]
 
     @staticmethod
-    def build_dict(tokens, dictionary, stopwords, i, url):
+    def build_dict(tokens, dictionary, stopwords, url):
         for t in tokens:
             if t not in stopwords:
                 occurrences = tokens.count(t)

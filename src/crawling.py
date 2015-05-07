@@ -7,6 +7,8 @@ from src.util.textwrangler import TextWrangler
 class Crawling():
     visited = []
     stopwords = []
+    url_list = []
+    pageRanks = {}
     # holds unique normalized words pointing to document where they occur + number of each occurrence
     # for instance: 'classification' => 'each': [(5, 1), (7, 1)]; meaning the word 'each' occurs once
     # in document 5 and once in document 7. the url of document 5 would be url_list[5].
@@ -30,9 +32,9 @@ class Crawling():
             self.visited.append(url)
             return html
 
-    def get_sites_with_links_to_me(self, url_list):
-        start_page_rank = 1 / len(url_list)
-        for url in url_list:
+    def get_sites_with_links_to_me(self, stage):
+        start_page_rank = 1 / len(self.url_list)
+        for url in self.url_list:
             result = 0
             for page in self.links_dictionary[url]:
                 links_on_page = self.links_dictionary[page]
@@ -40,15 +42,29 @@ class Crawling():
                     if url == l:
                         amount_of_links = len(self.links_dictionary[page])
                         result += start_page_rank / amount_of_links
-            self.calculate_pagerank(result, url)
+            pagerank = self.calculate_pagerank(result, url)
+            self.set_pagerank(url, stage, pagerank)
 
     def calculate_pagerank(self, sum_of_ego_links, site):
         # Implementation of pagerank calculation
         pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * ((sum_of_ego_links) + (0.1250 / 8)) )
-        print(site, math.ceil( pagerank_result * 10000) / 10000 )
+        # print(site, math.ceil( pagerank_result * 10000) / 10000 )
+        return pagerank_result
+
+    def set_pagerank(self, url, stage, value):
+        if url not in self.pageRanks:
+            self.pageRanks[url] = {}
+        self.pageRanks[url][stage] = value
+
+    # return pagerank of url for given stage
+    # or None if not exists
+    def get_pagerank(self, url, stage):
+        res = self.pageRanks.get(url, None)
+        if res is not None:
+            res = res.get(stage, None)
+        return res
 
     def get_links(self):
-        i = 0
         for url in self.url_list:
             if url not in self.visited:
                 site = self.retrieve_site(url)
@@ -57,7 +73,7 @@ class Crawling():
                 # get text from html document
                 text = soup.get_text()
                 tokens = TextWrangler.tokenize(text)
-                TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, i, url)
+                TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, url)
                 links_on_page = soup.find_all('a')
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily
@@ -68,8 +84,5 @@ class Crawling():
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
-
-                i += 1
                 # end of for loop over url_list
-        self.get_sites_with_links_to_me(self.url_list)
         return self.words_dictionary, self.url_list
