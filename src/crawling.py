@@ -8,6 +8,8 @@ class Crawling():
     visited = []
     stopwords = []
     url_list = []
+    # nested dictionaries. for instance: { 'd02': { 1: 0.11, 2: 0.21 } }
+    # meaning d02's pagerank for step 1 is 0.11 and for step 2 is 0.21
     pageRanks = {}
     # holds unique normalized words pointing to document where they occur + number of each occurrence
     # for instance: 'classification' => 'each': [(5, 1), (7, 1)]; meaning the word 'each' occurs once
@@ -27,47 +29,54 @@ class Crawling():
         self.stopwords = [re.sub("[,']", "", s) for s in stopwords if s != ""]
 
     def retrieve_site(self, url):
+        print("VISITING A SITE")
         with urllib.request.urlopen(url) as response:
             html = response.read()
-            self.visited.append(url)
             return html
 
-    def get_sites_with_links_to_me(self, stage):
+    # TODO: Find better name for this function. What does it do?
+    def get_sites_with_links_to_me(self, step):
         start_page_rank = 1 / len(self.url_list)
         for url in self.url_list:
-            result = 0
-            for page in self.links_dictionary[url]:
-                links_on_page = self.links_dictionary[page]
-                for l in links_on_page:
-                    if url == l:
-                        amount_of_links = len(self.links_dictionary[page])
-                        result += start_page_rank / amount_of_links
-            pagerank = self.calculate_pagerank(result, url)
-            self.set_pagerank(url, stage, pagerank)
+            if step < 1:  # 0 so to say
+                # 0.125 for all pages
+                self.set_pagerank(url, step, start_page_rank)
+            else:
+                result = 0
+                for page in self.links_dictionary[url]:
+                    links_on_page = self.links_dictionary[page]
+                    for l in links_on_page:
+                        if url == l:
+                            amount_of_links = len(self.links_dictionary[page])
+                            result += start_page_rank / amount_of_links
+                pagerank = self.calculate_pagerank(result, url, step)
+                self.set_pagerank(url, step, pagerank)
 
-    def calculate_pagerank(self, sum_of_ego_links, site):
+    def calculate_pagerank(self, sum_of_ego_links, url, step):
         # Implementation of pagerank calculation
-        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * ((sum_of_ego_links) + (0.1250 / 8)) )
-        # print(site, math.ceil( pagerank_result * 10000) / 10000 )
+        previous_pagerank = self.get_pagerank(url, step-1)
+        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (previous_pagerank / 8)))
         return pagerank_result
 
-    def set_pagerank(self, url, stage, value):
+    # puts a pagerank value for a url and a step in pageRanks dictionary
+    def set_pagerank(self, url, step, value):
         if url not in self.pageRanks:
             self.pageRanks[url] = {}
-        self.pageRanks[url][stage] = value
+        self.pageRanks[url][step] = value
 
-    # return pagerank of url for given stage
+    # return pagerank of url for given step
     # or None if not exists
-    def get_pagerank(self, url, stage):
+    def get_pagerank(self, url, step):
         res = self.pageRanks.get(url, None)
         if res is not None:
-            res = res.get(stage, None)
+            res = res.get(step, None)
         return res
 
     def get_links(self):
         for url in self.url_list:
             if url not in self.visited:
                 site = self.retrieve_site(url)
+                self.visited.append(url)
                 soup = BeautifulSoup(site)
 
                 # get text from html document
