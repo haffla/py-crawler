@@ -6,7 +6,7 @@ class TextWrangler(object):
     @staticmethod
     def tokenize(text):
         words = re.split('\W+', text)
-        return [w.lower() for w in words if w != ""]
+        return [w.lower() for w in words if w != '']
 
     @staticmethod
     def build_dict(tokens, dictionary, stopwords, url):

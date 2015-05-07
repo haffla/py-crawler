@@ -18,10 +18,8 @@ class Crawling():
     # holds all links of all sites, for instance: 'd01' => ['d02', 'd03', 'd05']
     links_dictionary = {}
     damping_factor = 0.95
-    base_url = ""
 
     def __init__(self, base_url, seed_list):
-        self.base_url = base_url
         self.url_list = [base_url + site for site in seed_list]
         stopwords_request = urllib.request.urlopen("http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/stop_words.txt")
         stopwords = stopwords_request.read().decode('utf-8')
@@ -29,7 +27,6 @@ class Crawling():
         self.stopwords = [re.sub("[,']", "", s) for s in stopwords if s != ""]
 
     def retrieve_site(self, url):
-        print("VISITING A SITE")
         with urllib.request.urlopen(url) as response:
             html = response.read()
             return html
@@ -88,11 +85,10 @@ class Crawling():
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily
                 # of course concatenating the href with base_url does only work if the href is not a uri itself
-                self.links_dictionary[url] = [self.base_url + str(a.get('href')) for a in links_on_page]
+                self.links_dictionary[url] = [urllib.parse.urljoin(url, str(a.get('href'))) for a in links_on_page]
 
                 for link in links_on_page:
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
-
         return self.words_dictionary, self.url_list
