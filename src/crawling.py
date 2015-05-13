@@ -8,6 +8,7 @@ class Crawling():
     visited = []
     stopwords = []
     url_list = []
+    # contains all urls that have no outlinks
     no_outlinks = []
     # nested dictionaries. for instance: { 'd02': { 1: 0.11, 2: 0.21 } }
     # meaning d02's pagerank for step 1 is 0.11 and for step 2 is 0.21
@@ -50,6 +51,10 @@ class Crawling():
                             result += previous_pagerank / amount_of_links
                 pagerank = self.calculate_pagerank(result, url, step)
                 self.set_pagerank(url, step, pagerank)
+        if step < 1:
+            return 1
+        else:
+            return self.calc_rank_diff(step)
 
     def calculate_pagerank(self, sum_of_ego_links, url, step):
         # Implementation of pagerank calculation
@@ -59,6 +64,13 @@ class Crawling():
         pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (prs_of_no_outlinks / len(self.url_list))))
         return round(pagerank_result, 4)
 
+    def calc_rank_diff(self, step):
+        res = 0
+        for key in self.pageRanks:
+            curr = self.pageRanks[key][step]
+            prev = self.pageRanks[key][step-1]
+            res += abs(curr - prev)
+        return res
 
     # puts a pagerank value for a url and a step in pageRanks dictionary
     def set_pagerank(self, url, step, value):

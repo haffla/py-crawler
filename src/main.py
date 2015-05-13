@@ -11,9 +11,8 @@ if __name__ == "__main__":
     seed = ["d01.html", "d06.html", "d08.html"]
     crawler = Crawling(base, seed)
     words_dict, urls = crawler.get_links()
-    crawler.get_sites_with_links_to_me(0) # correct
-    crawler.get_sites_with_links_to_me(1) # correct
-    crawler.get_sites_with_links_to_me(2) # is not correct
-    crawler.get_sites_with_links_to_me(3) # is not correct
+    step = 0
+    delta = 0.04
+    while crawler.get_sites_with_links_to_me(step) >= delta:
+        step += 1
     pretty_print_dict(crawler.pageRanks)
-    # pretty_print_dict(words_dict)
