@@ -57,7 +57,8 @@ class Crawling():
         for outlink in self.no_outlinks:
             prs_of_no_outlinks += self.get_pagerank(outlink, step-1)
         pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (prs_of_no_outlinks / len(self.url_list))))
-        return (math.ceil( pagerank_result * 10000) / 10000 )
+        return round(pagerank_result, 4)
+
 
     # puts a pagerank value for a url and a step in pageRanks dictionary
     def set_pagerank(self, url, step, value):
