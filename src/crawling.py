@@ -40,11 +40,16 @@ class Crawling():
                 self.set_pagerank(url, step, start_page_rank)
             else:
                 result = 0
-                for page in self.links_dictionary[url]:
-                    links_on_page = self.links_dictionary[page]
+                # for page in self.links_dictionary[url]:
+                for inner_url in self.url_list:
+                   # print(inner_url)
+                #for page in self.links_dictionary[inner_url]:
+
+                    links_on_page = self.links_dictionary[inner_url]
+
                     for l in links_on_page:
                         if url == l:
-                            amount_of_links = len(self.links_dictionary[page])
+                            amount_of_links = len(self.links_dictionary[inner_url])
                             result += start_page_rank / amount_of_links
                 pagerank = self.calculate_pagerank(result, url, step)
                 self.set_pagerank(url, step, pagerank)
@@ -52,8 +57,9 @@ class Crawling():
     def calculate_pagerank(self, sum_of_ego_links, url, step):
         # Implementation of pagerank calculation
         previous_pagerank = self.get_pagerank(url, step-1)
-        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (previous_pagerank / 8)))
-        return pagerank_result
+        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (previous_pagerank / len(self.url_list))))
+        # print(url, math.ceil( pagerank_result * 10000) / 10000 )
+        return (math.ceil( pagerank_result * 10000) / 10000 )
 
     # puts a pagerank value for a url and a step in pageRanks dictionary
     def set_pagerank(self, url, step, value):

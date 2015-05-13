@@ -12,7 +12,8 @@ if __name__ == "__main__":
     crawler = Crawling(base, seed)
     words_dict, urls = crawler.get_links()
     crawler.get_sites_with_links_to_me(0) # correct
-    crawler.get_sites_with_links_to_me(1) # correct except d05
+    crawler.get_sites_with_links_to_me(1) # correct
     crawler.get_sites_with_links_to_me(2) # is not correct
-    # pretty_print_dict(crawler.pageRanks)
+    crawler.get_sites_with_links_to_me(3) # is not correct
+    pretty_print_dict(crawler.pageRanks)
     # pretty_print_dict(words_dict)
