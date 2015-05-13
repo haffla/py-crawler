@@ -41,19 +41,19 @@ class Crawling():
             else:
                 result = 0
                 for inner_url in self.url_list:
-
                     links_on_page = self.links_dictionary[inner_url]
-
                     for l in links_on_page:
                         if url == l:
+                            previous_pagerank = self.get_pagerank(inner_url, step-1)
                             amount_of_links = len(self.links_dictionary[inner_url])
-                            result += start_page_rank / amount_of_links
+                            result += previous_pagerank / amount_of_links
+                            print(previous_pagerank, inner_url, amount_of_links)
                 pagerank = self.calculate_pagerank(result, url, step)
                 self.set_pagerank(url, step, pagerank)
 
     def calculate_pagerank(self, sum_of_ego_links, url, step):
         # Implementation of pagerank calculation
-        previous_pagerank = self.get_pagerank(url, step-1)
+        previous_pagerank = self.get_pagerank('http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/smdocs/d08.html', step-1)
         pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (previous_pagerank / len(self.url_list))))
         # print(url, math.ceil( pagerank_result * 10000) / 10000 )
         return (math.ceil( pagerank_result * 10000) / 10000 )
