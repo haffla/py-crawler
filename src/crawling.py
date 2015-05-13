@@ -8,6 +8,7 @@ class Crawling():
     visited = []
     stopwords = []
     url_list = []
+    no_outlinks = []
     # nested dictionaries. for instance: { 'd02': { 1: 0.11, 2: 0.21 } }
     # meaning d02's pagerank for step 1 is 0.11 and for step 2 is 0.21
     pageRanks = {}
@@ -47,15 +48,15 @@ class Crawling():
                             previous_pagerank = self.get_pagerank(inner_url, step-1)
                             amount_of_links = len(self.links_dictionary[inner_url])
                             result += previous_pagerank / amount_of_links
-                            print(previous_pagerank, inner_url, amount_of_links)
                 pagerank = self.calculate_pagerank(result, url, step)
                 self.set_pagerank(url, step, pagerank)
 
     def calculate_pagerank(self, sum_of_ego_links, url, step):
         # Implementation of pagerank calculation
-        previous_pagerank = self.get_pagerank('http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/smdocs/d08.html', step-1)
-        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (previous_pagerank / len(self.url_list))))
-        # print(url, math.ceil( pagerank_result * 10000) / 10000 )
+        prs_of_no_outlinks = 0
+        for outlink in self.no_outlinks:
+            prs_of_no_outlinks += self.get_pagerank(outlink, step-1)
+        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (prs_of_no_outlinks / len(self.url_list))))
         return (math.ceil( pagerank_result * 10000) / 10000 )
 
     # puts a pagerank value for a url and a step in pageRanks dictionary
@@ -85,6 +86,8 @@ class Crawling():
                 tokens = TextWrangler.tokenize(text)
                 TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, url)
                 links_on_page = soup.find_all('a')
+                if len(links_on_page) == 0:
+                    self.no_outlinks.append(url)
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily
                 # of course concatenating the href with base_url does only work if the href is not a uri itself
