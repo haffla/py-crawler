@@ -9,7 +9,7 @@ class Crawling():
     stopwords = []
     url_list = []
     # contains all urls that have no outlinks
-    no_outlinks = []
+    no_out_links = []
     # nested dictionaries. for instance: { 'd02': { 1: 0.11, 2: 0.21 } }
     # meaning d02's pagerank for step 1 is 0.11 and for step 2 is 0.21
     pageRanks = {}
@@ -20,6 +20,7 @@ class Crawling():
     # holds all links of all sites, for instance: 'd01' => ['d02', 'd03', 'd05']
     links_dictionary = {}
     damping_factor = 0.95
+    start_page_rank = 0
 
     def __init__(self, base_url, seed_list):
         self.url_list = [base_url + site for site in seed_list]
@@ -27,42 +28,44 @@ class Crawling():
         stopwords = stopwords_request.read().decode('utf-8')
         stopwords = re.split("\s", stopwords)
         self.stopwords = [re.sub("[,']", "", s) for s in stopwords if s != ""]
+        self.initialize()
+        self.start_page_rank = 1 / len(self.url_list)
 
-    def retrieve_site(self, url):
+    @staticmethod
+    def retrieve_site(url):
         with urllib.request.urlopen(url) as response:
             html = response.read()
             return html
 
     # TODO: Find better name for this function. What does it do?
-    def get_sites_with_links_to_me(self, step):
-        start_page_rank = 1 / len(self.url_list)
+    def do_page_ranking(self, step):
         for url in self.url_list:
             if step < 1:  # 0 so to say
-                # 0.125 for all pages
-                self.set_pagerank(url, step, start_page_rank)
+                self.set_page_rank(url, step, self.start_page_rank)
             else:
                 result = 0
                 for inner_url in self.url_list:
                     links_on_page = self.links_dictionary[inner_url]
                     for l in links_on_page:
                         if url == l:
-                            previous_pagerank = self.get_pagerank(inner_url, step-1)
+                            previous_page_rank = self.get_page_rank(inner_url, step-1)
                             amount_of_links = len(self.links_dictionary[inner_url])
-                            result += previous_pagerank / amount_of_links
-                pagerank = self.calculate_pagerank(result, url, step)
-                self.set_pagerank(url, step, pagerank)
+                            result += previous_page_rank / amount_of_links
+                page_rank = self.calculate_page_rank(result, step)
+                self.set_page_rank(url, step, page_rank)
         if step < 1:
             return 1
         else:
             return self.calc_rank_diff(step)
 
-    def calculate_pagerank(self, sum_of_ego_links, url, step):
-        # Implementation of pagerank calculation
-        prs_of_no_outlinks = 0
-        for outlink in self.no_outlinks:
-            prs_of_no_outlinks += self.get_pagerank(outlink, step-1)
-        pagerank_result = ((1 - self.damping_factor) / len(self.url_list)) + (self.damping_factor * (sum_of_ego_links + (prs_of_no_outlinks / len(self.url_list))))
-        return round(pagerank_result, 4)
+    def calculate_page_rank(self, result, step):
+        # sum of page_rank of sites that have no outlinks
+        prs_without_out_links = 0
+        for out_link in self.no_out_links:
+            prs_without_out_links += self.get_page_rank(out_link, step-1)
+        page_rank_result = ((1 - self.damping_factor) / len(self.url_list)) + \
+            (self.damping_factor * (result + (prs_without_out_links / len(self.url_list))))
+        return round(page_rank_result, 4)
 
     def calc_rank_diff(self, step):
         res = 0
@@ -73,41 +76,38 @@ class Crawling():
         return res
 
     # puts a pagerank value for a url and a step in pageRanks dictionary
-    def set_pagerank(self, url, step, value):
+    def set_page_rank(self, url, step, value):
         if url not in self.pageRanks:
             self.pageRanks[url] = {}
         self.pageRanks[url][step] = value
 
     # return pagerank of url for given step
     # or None if not exists
-    def get_pagerank(self, url, step):
+    def get_page_rank(self, url, step):
         res = self.pageRanks.get(url, None)
         if res is not None:
             res = res.get(step, None)
         return res
 
-    # TODO: Find better name
-    def get_links(self):
+    # initializes crawling of urls, collection of additional urls, tokenizing, building of word_dictionary..
+    def initialize(self):
         for url in self.url_list:
             if url not in self.visited:
                 site = self.retrieve_site(url)
                 self.visited.append(url)
                 soup = BeautifulSoup(site)
-
-                # get text from html document
                 text = soup.get_text()
                 tokens = TextWrangler.tokenize(text)
                 TextWrangler.build_dict(tokens, self.words_dictionary, self.stopwords, url)
                 links_on_page = soup.find_all('a')
+                # if the page does not have outlinks we add it to the no_outlinks list
                 if len(links_on_page) == 0:
-                    self.no_outlinks.append(url)
+                    self.no_out_links.append(url)
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily
-                # of course concatenating the href with base_url does only work if the href is not a uri itself
                 self.links_dictionary[url] = [urllib.parse.urljoin(url, str(a.get('href'))) for a in links_on_page]
 
                 for link in links_on_page:
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
-        return self.words_dictionary, self.url_list
