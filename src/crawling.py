@@ -40,10 +40,7 @@ class Crawling():
                 self.set_pagerank(url, step, start_page_rank)
             else:
                 result = 0
-                # for page in self.links_dictionary[url]:
                 for inner_url in self.url_list:
-                   # print(inner_url)
-                #for page in self.links_dictionary[inner_url]:
 
                     links_on_page = self.links_dictionary[inner_url]
 
