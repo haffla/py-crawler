@@ -48,7 +48,7 @@ class Crawling():
                     links_on_page = self.links_dictionary[inner_url]
                     # check all links on the site
                     for l in links_on_page:
-                        # if it has a link to the current url, calculate the pagerank
+                        # if it has a link to the current url, sum up pagerank from step before and divide by the amount of links
                         if url == l:
                             previous_page_rank = self.get_page_rank(inner_url, step-1)
                             amount_of_links = len(self.links_dictionary[inner_url])
