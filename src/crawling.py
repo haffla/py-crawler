@@ -45,6 +45,7 @@ class Crawling():
                 result = 0
                 # go through all sites again
                 for inner_url in self.url_list:
+
                     links_on_page = self.links_dictionary[inner_url]
                     # check all links on the site
                     for l in links_on_page:
