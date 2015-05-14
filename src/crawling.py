@@ -37,16 +37,18 @@ class Crawling():
             html = response.read()
             return html
 
-    # TODO: Find better name for this function. What does it do?
     def do_page_ranking(self, step):
         for url in self.url_list:
             if step < 1:  # 0 so to say
                 self.set_page_rank(url, step, self.start_page_rank)
             else:
                 result = 0
+                # go through all sites again
                 for inner_url in self.url_list:
                     links_on_page = self.links_dictionary[inner_url]
+                    # check all links on the site
                     for l in links_on_page:
+                        # if it has a link to the current url, calculate the pagerank
                         if url == l:
                             previous_page_rank = self.get_page_rank(inner_url, step-1)
                             amount_of_links = len(self.links_dictionary[inner_url])
