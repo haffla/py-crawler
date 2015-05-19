@@ -7,11 +7,11 @@ class Scoring():
     def __init__(self, words_dictionary, length_of_document_list):
         for query in self.queries:
             for term in words_dictionary[query]:
-                self.calculate_tf_idf(query, term[1], len(words_dictionary[query]), length_of_document_list)
+                self.calculate_tf_idf(query, term[1], len(words_dictionary[query]), length_of_document_list, term[0])
 
-    def calculate_tf_idf(self, query, tf, df, N):
+    def calculate_tf_idf(self, query, tf, df, N, doc):
         result = round( (1 + math.log10(float(tf))) * math.log10(float(N/df)), 6 )
-        print(query, result)
+        print(query, 'in', doc, result)
 
     # Was ist das ? http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/doc_lengthes.txt
     #Ihn fragen, was genau ausgeben werden muss
