@@ -10,9 +10,8 @@ class Scoring():
                 self.calculate_tf_idf(query, term[1], len(words_dictionary[query]), length_of_document_list)
 
     def calculate_tf_idf(self, query, tf, df, N):
-        result = (1 + math.log10(float(tf))) * math.log10(float(N/df))
-        print(query, result )
-
+        result = round( (1 + math.log10(float(tf))) * math.log10(float(N/df)), 6 )
+        print(query, result)
 
     # Was ist das ? http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/doc_lengthes.txt
     #Ihn fragen, was genau ausgeben werden muss
