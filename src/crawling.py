@@ -2,6 +2,7 @@ import urllib.request, re, math
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from src.util.textwrangler import TextWrangler
+from src.scoring import Scoring
 
 
 class Crawling():
@@ -109,7 +110,10 @@ class Crawling():
                 # thus, we can calculate pageRank later more easily
                 self.links_dictionary[url] = [urllib.parse.urljoin(url, str(a.get('href'))) for a in links_on_page]
 
+
                 for link in links_on_page:
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
+        print(self.links_dictionary) # TODO muss noch richtig ausgegeben werden wie auf: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/link_structure.txt
+        Scoring(self.words_dictionary, len(self.url_list)) # TODO muss das sein wie?: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/index.txt
