@@ -52,7 +52,6 @@ class Scoring():
     # TODO
 
     def calculate_scoring_for_query(self, words_dictionary, url_list, search_queries):
-        #terms = self.split_queries(search_queries)
         terms = TextWrangler.split_words(search_queries)
         #for each query term t
         for t in terms:
