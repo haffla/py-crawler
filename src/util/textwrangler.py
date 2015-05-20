@@ -30,9 +30,3 @@ class TextWrangler(object):
         if last_part.find('.') != -1:
             last_part = last_part.split('.')[0]
         return last_part
-
-    @staticmethod
-    def split_words(list_of_words):
-        for word in list_of_words:
-            split = re.split(' ', word)
-            return split

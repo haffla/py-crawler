@@ -2,7 +2,6 @@ import urllib.request, re, math
 from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 from src.util.textwrangler import TextWrangler
-from src.scoring import Scoring
 
 
 class Crawling():
@@ -70,6 +69,7 @@ class Crawling():
             (self.damping_factor * (result + (prs_without_out_links / len(self.url_list))))
         return round(page_rank_result, 4)
 
+    # calculates the difference between 2 steps of pageRanks
     def calc_rank_diff(self, step):
         res = 0
         for key in self.pageRanks:
@@ -109,8 +109,6 @@ class Crawling():
                 # put every url in links_dictionary and store all links on that particular url
                 # thus, we can calculate pageRank later more easily
                 self.links_dictionary[url] = [urllib.parse.urljoin(url, str(a.get('href'))) for a in links_on_page]
-
-
                 for link in links_on_page:
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
