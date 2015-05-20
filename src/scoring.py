@@ -1,17 +1,39 @@
 import math
+from src.util.textwrangler import TextWrangler
 
 class Scoring():
 
     queries = ['tokens', 'index', 'classification']
+    weight_matrix = {}
+    doc_lengths = {}
 
-    def __init__(self, words_dictionary, length_of_document_list):
-        for query in self.queries:
-            for term in words_dictionary[query]:
-                self.calculate_tf_idf(query, term[1], len(words_dictionary[query]), length_of_document_list, term[0])
+    def __init__(self, words_dictionary, url_list):
+        for word in words_dictionary.keys():
+            doc_freq = len(words_dictionary[word])
+            for url in url_list:
+                docname_last_part = TextWrangler.get_last_part_of_url(url)
+                tuples = words_dictionary[word]
+                result = 0
+                for tuple in tuples:
+                    if tuple[0] == docname_last_part:
+                        result = self.calculate_tf_idf(tuple[1], doc_freq, len(url_list))
+                if url in self.weight_matrix:
+                    self.weight_matrix[url].append((word, result))
+                else:
+                    self.weight_matrix[url] = [(word, result)]
 
-    def calculate_tf_idf(self, query, tf, df, N, doc):
+        self.set_doc_lengths()
+
+    def set_doc_lengths(self):
+        for doc in self.weight_matrix:
+            result = 0
+            for tuple in self.weight_matrix[doc]:
+                result += tuple[1]*tuple[1]
+            self.doc_lengths[doc] = math.sqrt(result)
+
+    def calculate_tf_idf(self, tf, df, N):
         result = round( (1 + math.log10(float(tf))) * math.log10(float(N/df)), 6 )
-        print(query, 'in', doc, result)
+        return result
 
     # Was ist das ? http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/doc_lengthes.txt
     #Ihn fragen, was genau ausgeben werden muss

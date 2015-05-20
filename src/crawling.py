@@ -115,5 +115,3 @@ class Crawling():
                     l = urllib.parse.urljoin(url, str(link.get('href')))
                     if l not in self.url_list:
                         self.url_list.append(l)
-        print(self.links_dictionary) # TODO muss noch richtig ausgegeben werden wie auf: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/link_structure.txt
-        Scoring(self.words_dictionary, len(self.url_list)) # TODO muss das sein wie?: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/index.txt
