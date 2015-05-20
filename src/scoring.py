@@ -3,12 +3,13 @@ from src.util.textwrangler import TextWrangler
 
 class Scoring():
 
-    queries = ['tokens', 'index', 'classification']
     weight_matrix = {}
     doc_lengths = {}
+    queries = ['tokens', 'index', 'classification']
 
     def __init__(self, words_dictionary, url_list):
         self.do_weight_matrx(words_dictionary, url_list)
+        self.calculate_scoring_for_query(words_dictionary, url_list)
 
     def do_weight_matrx(self, words_dictionary, url_list):
         # go throug all words in the documents
@@ -47,16 +48,22 @@ class Scoring():
         result = round( (1 + math.log10(float(tf))) * math.log10(float(N/df)), 6 )
         return result
 
-    # Aufgabe:
-    # http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/daw-sm-python.pdf
-
-
+    # Aufgabe: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/daw-sm-python.pdf
     # TODO
-        #0  tf-idf = (1 + log tf) * log(N/df)
+
+    def calculate_scoring_for_query(self, words_dictionary, url_list):
+        for query in self.queries: #for each query term t
+            posting_list_for_query = words_dictionary[query] # fetch postings list for t
+            for tuple in posting_list_for_query:
+                tf = tuple[1]
+                df = len(posting_list_for_query)
+            result = self.calculate_tf_idf(tf, df, len(url_list)) # calculate wt,q
+            # 5
+
         #1  float Scores[N] = 0
         #2  float Length[N]
-        #3  for each query term t
-        #4  do calculate wt,q and fetch postings list for t
+        #3  for each query term t (done)
+        #4  do calculate wt,q and fetch postings list for t (done)
         #5  for each pair(d,tft,d ) in postings list
         #6  do Scores[d]+ = wt,d × wt,q
         #7  Read the array Length
