@@ -5,11 +5,11 @@ class Scoring():
 
     weight_matrix = {}
     doc_lengths = {}
-    queries = ['tokens', 'index', 'classification']
+    queries = ['tokens', 'index', 'classification', 'tokens classification']
 
     def __init__(self, words_dictionary, url_list):
         self.do_weight_matrx(words_dictionary, url_list)
-        self.calculate_scoring_for_query(words_dictionary, url_list)
+        self.calculate_scoring_for_query(words_dictionary, url_list, self.queries)
 
     def do_weight_matrx(self, words_dictionary, url_list):
         # go throug all words in the documents
@@ -51,13 +51,19 @@ class Scoring():
     # Aufgabe: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/daw-sm-python.pdf
     # TODO
 
-    def calculate_scoring_for_query(self, words_dictionary, url_list):
-        for query in self.queries: #for each query term t
-            posting_list_for_query = words_dictionary[query] # fetch postings list for t
-            for tuple in posting_list_for_query:
+    def calculate_scoring_for_query(self, words_dictionary, url_list, search_queries):
+        #terms = self.split_queries(search_queries)
+        terms = TextWrangler.split_words(search_queries)
+        #for each query term t
+        for t in terms:
+            #fetch postings list for t
+            posting_list_for_t = words_dictionary[t]
+            for tuple in posting_list_for_t:
                 tf = tuple[1]
-                df = len(posting_list_for_query)
-            result = self.calculate_tf_idf(tf, df, len(url_list)) # calculate wt,q
+                df = len(posting_list_for_t)
+                #calculate wt,q
+                result = self.calculate_tf_idf(tf, df, len(url_list))
+                print(result)
             # 5
 
         #1  float Scores[N] = 0
