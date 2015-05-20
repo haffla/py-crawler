@@ -8,10 +8,10 @@ class Scoring():
     queries = ['tokens', 'index', 'classification', 'tokens classification']
 
     def __init__(self, words_dictionary, url_list):
-        self.do_weight_matrx(words_dictionary, url_list)
+        self.do_weight_matrix(words_dictionary, url_list)
         self.calculate_scoring_for_query(words_dictionary, url_list, self.queries)
 
-    def do_weight_matrx(self, words_dictionary, url_list):
+    def do_weight_matrix(self, words_dictionary, url_list):
         # go throug all words in the documents
         for word in words_dictionary.keys():
             # set the length of all documents because we need it later to calculate the tf_idf
