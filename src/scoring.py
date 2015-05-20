@@ -23,7 +23,7 @@ class Scoring():
                 result = 0
                 # Then go through all the tuples to check the term frequency of each word in this doc (url)
                 for tuple in tuples:
-                    # ONLY ff the word is on in this doc (url) then calculate tf_idf
+                    # ONLY if the word is on in this doc (url) then calculate tf_idf
                     if tuple[0] == docname_last_part:
                         result = self.calculate_tf_idf(tuple[1], doc_freq, len(url_list))
                 # We add the result to the weight matrix and each document is now represented as a real-valued vector of tf-idf weights
