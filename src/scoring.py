@@ -26,7 +26,7 @@ class Scoring():
                     # ONLY ff the word is on in this doc (url) then calculate tf_idf
                     if tuple[0] == docname_last_part:
                         result = self.calculate_tf_idf(tuple[1], doc_freq, len(url_list))
-                # We add the result to the weight matrix and now every document is now represented as a real-valued vector of tf-idf weights
+                # We add the result to the weight matrix and each document is now represented as a real-valued vector of tf-idf weights
                 if url in self.weight_matrix:
                     self.weight_matrix[url].append((word, result))
                 else:
