@@ -71,7 +71,7 @@ class Scoring():
                     tf = dtf_tuple[1]
                     df = len(posting_list_for_t)
                     # calculate wt,q
-                    wtq = self.calculate_tf_idf(tf, df, len(url_list))
+                    wtq = self.calculate_tf_idf(tf, df, len(url_list)) # ich glaube das ist eher wt,q
                     # wtd = ?
                     # result = wtq x wtd
                     scores[document] += wtq
