@@ -12,7 +12,8 @@ class Printer():
 
     @staticmethod
     def pretty_print_dict(dicto):
-        for key in sorted(dicto, reverse=True):
+        # TODO Output nach Values sortieren
+        for key in sorted(dicto):
             print("%s: %s" % (key, dicto[key]))
 
     @staticmethod
