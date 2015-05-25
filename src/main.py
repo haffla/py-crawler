@@ -10,7 +10,7 @@ if __name__ == "__main__":
     delta = 0.04
     while crawler.do_page_ranking(step) >= delta:
         step += 1
-    # Printer.print_words(crawler.words_dictionary)
-    # Printer.print_link_structure(crawler.links_dictionary)
+    #Printer.print_words(crawler.words_dictionary)
+    #Printer.print_link_structure(crawler.links_dictionary)
     scorer = Scoring(crawler.words_dictionary, crawler.url_list)
     Printer.print_scoring(scorer.scores)

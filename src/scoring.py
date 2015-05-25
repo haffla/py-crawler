@@ -58,11 +58,10 @@ class Scoring():
     def calculate_scoring_for_query(self, words_dictionary, url_list, search_queries):
         scores = {}
         doc_ids = [TextWrangler.get_last_part_of_url(url) for url in url_list]
-        # for each query term t
         for query in search_queries:
-            # print(query.split(' '))
             for doc_id in doc_ids:
                 scores[doc_id] = 0  # 1
+            # for each query term t
             for t in query.split(' '):
                 # fetch postings list for t
                 posting_list_for_t = words_dictionary[t]
@@ -72,9 +71,8 @@ class Scoring():
                     df = len(posting_list_for_t)
                     # calculate wt,q
                     wtq = self.calculate_tf_idf(tf, df, len(url_list)) # ich glaube das ist eher wt,q
-                    # wtd = ?
                     # result = wtq x wtd
-                    scores[document] += wtq
+                    scores[document] += wtq # * wtd
             for d in self.doc_lengths:
                 scores[d] /= self.doc_lengths[d]  # 9
             # filter out docs that have score == 0
