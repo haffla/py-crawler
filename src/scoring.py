@@ -9,9 +9,9 @@ class Scoring():
     queries = ['tokens', 'index', 'classification', 'tokens classification']
     scores = []
 
-    def __init__(self, words_dictionary, url_list):
-        self.do_weight_matrix(words_dictionary, url_list)
-        self.calculate_scoring_for_query(words_dictionary, url_list, self.queries)
+    def __init__(self, crawler):
+        self.do_weight_matrix(crawler.words_dictionary, crawler.url_list)
+        self.calculate_scoring_for_query(crawler, self.queries)
 
     def do_weight_matrix(self, words_dictionary, url_list):
         len_url_list = len(url_list)
@@ -52,46 +52,35 @@ class Scoring():
         result = round((1 + math.log10(float(tf))) * math.log10(float(n / df)), 6)
         return result
 
-    # Aufgabe: http://people.f4.htw-berlin.de/fileadmin/user_upload/Dozenten/WI-Dozenten/Classen/DAWeb/daw-sm-python.pdf
-    # TODO
-
-    def calculate_scoring_for_query(self, words_dictionary, url_list, search_queries):
+    def calculate_scoring_for_query(self, crawler, search_queries):
         scores = {}
-        doc_ids = [TextWrangler.get_last_part_of_url(url) for url in url_list]
+        doc_ids = [TextWrangler.get_last_part_of_url(url) for url in crawler.url_list]
         for query in search_queries:
             for doc_id in doc_ids:
                 scores[doc_id] = 0  # 1
             # for each query term t
             query_terms = query.split(' ')
+            length_query = 0
             for t in query_terms:
                 # fetch postings list for t
-                posting_list_for_t = words_dictionary[t]
+                posting_list_for_t = crawler.words_dictionary[t]
                 tf = query.count(t)
                 df = len(posting_list_for_t)
-                wtq = self.calculate_tf_idf(tf, df, len(url_list))
+                wtq = self.calculate_tf_idf(tf, df, len(crawler.url_list))
+                length_query += wtq*wtq
                 for dtf_tuple in posting_list_for_t:
                     document = dtf_tuple[0]
-                    wtd = self.get_wtd(self.weight_matrix[document], t)
+                    wtd = self.get_wtd(document, t)
                     result = wtd * wtq
-                    scores[document] += wtd
+                    scores[document] += result
             for d in self.doc_lengths:
-                scores[d] /= self.doc_lengths[d]  # 9
+                scores[d] /= (self.doc_lengths[d] * math.sqrt(length_query))
             # filter out docs that have score == 0
             filtered_scores = {k: v for k, v in scores.items() if v > 0}
             self.scores.append((query_terms, filtered_scores))
 
+    # gets idf for term from weight matrix
     def get_wtd(self, doc, t):
-        for d in doc:
+        for d in self.weight_matrix[doc]:
             if d[0] == t:
                 return d[1]
-
-        # #1  float Scores[N] = 0
-        # #2  float Length[N]
-        # #3  for each query term t (done)
-        # #4  do calculate wt,q and fetch postings list for t (done)
-        # #5  for each pair(d,tft,d ) in postings list
-        # #6  do Scores[d]+ = wt,d × wt,q
-        # #7  Read the array Length
-        # #8  for each d
-        # #9  do Scores[d] = Scores[d]/Length[d]
-        # #10 return Top K components of Scores[]
