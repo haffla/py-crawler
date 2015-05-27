@@ -1,5 +1,6 @@
 from src.util.textwrangler import TextWrangler
 
+
 class Printer():
 
     @staticmethod
@@ -33,3 +34,15 @@ class Printer():
         print("\n----- Index ----\n")
         for key in sorted(dictionary):
             print("(" + key + ", df:" + str(len(dictionary[key])) + ")", "->", dictionary[key])
+
+    @staticmethod
+    def print_doclengths(dictionary):
+        print("\n----- Document Lengths ----\n")
+        for key in sorted(dictionary):
+            print(key + ": " + str(dictionary[key]))
+
+    @staticmethod
+    def print_pageranks(dictionary):
+        print("\n----- Page Rank ----\n")
+        for key in sorted(dictionary):
+            print(TextWrangler.get_last_part_of_url(key) + ": " + str(dictionary[key]))

@@ -14,3 +14,5 @@ if __name__ == "__main__":
     #Printer.print_link_structure(crawler.links_dictionary)
     scorer = Scoring(crawler.words_dictionary, crawler.url_list)
     Printer.print_scoring(scorer.scores)
+    Printer.print_pageranks(crawler.pageRanks)
+    Printer.print_doclengths(scorer.doc_lengths)

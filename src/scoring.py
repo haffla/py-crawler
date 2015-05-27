@@ -62,25 +62,23 @@ class Scoring():
             for doc_id in doc_ids:
                 scores[doc_id] = 0  # 1
             # for each query term t
-            for t in query.split(' '):
+            query_terms = query.split(' ')
+            for t in query_terms:
                 # fetch postings list for t
                 posting_list_for_t = words_dictionary[t]
+                tf = query.count(t)
+                df = len(posting_list_for_t)
+                wtq = self.calculate_tf_idf(tf, df, len(url_list))
                 for dtf_tuple in posting_list_for_t:
                     document = dtf_tuple[0]
-                    tf = dtf_tuple[1]
-                    df = len(posting_list_for_t)
-                    # calculate wt,q
-                    wtq = self.calculate_tf_idf(tf, df, len(url_list)) # ich glaube das ist eher wt,q
-                    # wir brauchen hier irgendwie den "tf-idf weight of term i in the query."
                     wtd = self.get_wtd(self.weight_matrix[document], t)
-                    print(wtd, wtq) # ist das gleiche was auch in der Matrix steht
-                    # result = wtq x wtd
-                    scores[document] += wtq #* wtd
+                    result = wtd * wtq
+                    scores[document] += wtd
             for d in self.doc_lengths:
                 scores[d] /= self.doc_lengths[d]  # 9
             # filter out docs that have score == 0
             filtered_scores = {k: v for k, v in scores.items() if v > 0}
-            self.scores.append((query.split(' '), filtered_scores))
+            self.scores.append((query_terms, filtered_scores))
 
     def get_wtd(self, doc, t):
         for d in doc:
