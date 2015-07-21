@@ -77,7 +77,5 @@ class Scoring():
             self.scores.append((query_terms, filtered_scores))
 
     # gets idf for term from weight matrix
-    def get_wtd(self, doc, t):
-        for d in self.weight_matrix[doc]:
-            if d[0] == t:
-                return d[1]
+    def get_wtd(self, doc, term):
+        return next(v for (t, v) in self.weight_matrix[doc] if t == term)
