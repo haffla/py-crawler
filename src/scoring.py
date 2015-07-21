@@ -62,38 +62,22 @@ class Scoring():
             for doc_id in doc_ids:
                 scores[doc_id] = 0  # 1
             # for each query term t
-            for t in query.split(' '):
+            query_terms = query.split(' ')
+            for t in query_terms:
                 # fetch postings list for t
                 posting_list_for_t = words_dictionary[t]
+                t_freq = query_terms.count(t)
+                d_freq = len(posting_list_for_t)
+                wtq = self.calculate_tf_idf(t_freq, d_freq, len(url_list))
                 for dtf_tuple in posting_list_for_t:
                     document = dtf_tuple[0]
                     tf = dtf_tuple[1]
-                    df = len(posting_list_for_t)
-                    # calculate wt,q
-                    wtq = self.calculate_tf_idf(tf, df, len(url_list)) # ich glaube das ist eher wt,q
-                    # wir brauchen hier irgendwie den "tf-idf weight of term i in the query."
-                    wtd = self.get_wtd(self.weight_matrix[document], t)
+                    wtd = self.calculate_tf_idf(tf, d_freq, len(url_list))
                     print(wtd, wtq) # ist das gleiche was auch in der Matrix steht
                     # result = wtq x wtd
-                    scores[document] += wtq #* wtd
+                    scores[document] += wtd * wtq
             for d in self.doc_lengths:
                 scores[d] /= self.doc_lengths[d]  # 9
             # filter out docs that have score == 0
             filtered_scores = {k: v for k, v in scores.items() if v > 0}
             self.scores.append((query.split(' '), filtered_scores))
-
-    def get_wtd(self, doc, t):
-        for d in doc:
-            if d[0] == t:
-                return d[1]
-
-        # #1  float Scores[N] = 0
-        # #2  float Length[N]
-        # #3  for each query term t (done)
-        # #4  do calculate wt,q and fetch postings list for t (done)
-        # #5  for each pair(d,tft,d ) in postings list
-        # #6  do Scores[d]+ = wt,d × wt,q
-        # #7  Read the array Length
-        # #8  for each d
-        # #9  do Scores[d] = Scores[d]/Length[d]
-        # #10 return Top K components of Scores[]
