@@ -17,7 +17,9 @@ if __name__ == "__main__":
     Printer.print_scoring(scorer.scores)
     Printer.print_pageranks(crawler.pageRanks)
     #Printer.print_doclengths(scorer.doc_lengths)
-    for d in scorer.scores:
-        scorer.scores[d] *= (1 + math.log10(crawler.get_page_rank(d, 3)))
+    #apply pageRanks
+    #for sc in scorer.scores:
+     #   for doc in sc[1]:
+      #      sc[1][doc] *= (1 + math.log10(crawler.get_page_rank(doc, 3)))
 
     Printer.print_scoring(scorer.scores)
