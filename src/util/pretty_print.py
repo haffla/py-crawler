@@ -1,5 +1,6 @@
 from src.util.textwrangler import TextWrangler
 
+
 class Printer():
 
     @staticmethod
@@ -7,14 +8,14 @@ class Printer():
         print("\n----- Scoring ----\n")
         for score in scores:
             print(score[0])
-            Printer.pretty_print_dict(score[1])
+            Printer.print_sorted_by_values(score[1])
             print()
 
     @staticmethod
-    def pretty_print_dict(dicto):
-        # TODO Output nach Values sortieren
-        for key in sorted(dicto):
-            print("%s: %s" % (key, dicto[key]))
+    def print_sorted_by_values(d):
+        genexp = ((k, d[k]) for k in sorted(d, key=d.get, reverse=True))
+        for k, v in genexp:
+            print(k + ": ", v)
 
     @staticmethod
     def print_link_structure(links_dictionary):
@@ -33,3 +34,14 @@ class Printer():
         print("\n----- Index ----\n")
         for key in sorted(dictionary):
             print("(" + key + ", df:" + str(len(dictionary[key])) + ")", "->", dictionary[key])
+
+    @staticmethod
+    def print_doclengths(dictionary):
+        print("\n----- Document Lengths ----\n")
+        Printer.print_sorted_by_values(dictionary)
+
+    @staticmethod
+    def print_pageranks(dictionary):
+        print("\n----- Page Rank ----\n")
+        for key in sorted(dictionary):
+            print(key + ": " + str(dictionary[key]))

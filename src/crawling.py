@@ -40,7 +40,7 @@ class Crawling():
     def do_page_ranking(self, step):
         for url in self.url_list:
             if step < 1:  # 0 so to say
-                self.set_page_rank(url, step, self.start_page_rank)
+                self.set_page_rank(TextWrangler.get_last_part_of_url(url), step, self.start_page_rank)
             else:
                 result = 0
                 # go through all sites again
@@ -50,11 +50,12 @@ class Crawling():
                     for l in links_on_page:
                         # if it has a link to the current url, sum up pagerank from step before and divide by the amount of links
                         if url == l:
-                            previous_page_rank = self.get_page_rank(inner_url, step-1)
+                            u = TextWrangler.get_last_part_of_url(inner_url)
+                            previous_page_rank = self.get_page_rank(u, step-1)
                             amount_of_links = len(self.links_dictionary[inner_url])
                             result += previous_page_rank / amount_of_links
                 page_rank = self.calculate_page_rank(result, step)
-                self.set_page_rank(url, step, page_rank)
+                self.set_page_rank(TextWrangler.get_last_part_of_url(url), step, page_rank)
         if step < 1:
             return 1
         else:
@@ -64,7 +65,8 @@ class Crawling():
         # sum of page_rank of sites that have no outlinks
         prs_without_out_links = 0
         for out_link in self.no_out_links:
-            prs_without_out_links += self.get_page_rank(out_link, step-1)
+            o = TextWrangler.get_last_part_of_url(out_link)
+            prs_without_out_links += self.get_page_rank(o, step-1)
         page_rank_result = ((1 - self.damping_factor) / len(self.url_list)) + \
             (self.damping_factor * (result + (prs_without_out_links / len(self.url_list))))
         return round(page_rank_result, 4)
