@@ -16,24 +16,21 @@ class Scoring():
     def do_weight_matrix(self, words_dictionary, url_list):
         len_url_list = len(url_list)
         # go through all words in the documents
-        for word in words_dictionary.keys():
-            # set the length of all documents because we need it later to calculate the tf_idf
+        for word in words_dictionary:
+            # save the document frequency of this word
+            # because we need it later to calculate the tf_idf
             doc_freq = len(words_dictionary[word])
             # go through all docs
             for url in url_list:
-                docname_last_part = TextWrangler.get_last_part_of_url(url)
-                tuples = words_dictionary[word]
-                result = 0
-                # Then go through all the tuples to check the term frequency of each word in this doc (url)
-                for dtf_tuple in tuples:
-                    # ONLY if the word is on in this doc (url) then calculate tf_idf
-                    if dtf_tuple[0] == docname_last_part:
-                        result = self.calculate_tf_idf(dtf_tuple[1], doc_freq, len_url_list)
-                # We add the result to the weight matrix and each document is now represented as a real-valued vector of tf-idf weights
-                if docname_last_part in self.weight_matrix:
-                    self.weight_matrix[docname_last_part].append((word, result))
-                else:
-                    self.weight_matrix[docname_last_part] = [(word, result)]
+                doc = TextWrangler.get_last_part_of_url(url)
+                tuples = [(d, f) for (d, f) in words_dictionary[word] if d == doc]
+                # it's either length 0 or 1
+                if len(tuples) > 0:
+                    result = self.calculate_tf_idf(tuples[0][1], doc_freq, len_url_list)
+                    if doc in self.weight_matrix:
+                        self.weight_matrix[doc].append((word, result))
+                    else:
+                        self.weight_matrix[doc] = [(word, result)]
             self.set_doc_lengths()
 
     def set_doc_lengths(self):
