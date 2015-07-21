@@ -43,17 +43,12 @@ class Crawling():
                 self.set_page_rank(TextWrangler.get_last_part_of_url(url), step, self.start_page_rank)
             else:
                 result = 0
-                # go through all sites again
-                for inner_url in self.url_list:
-                    links_on_page = self.links_dictionary[inner_url]
-                    # check all links on the site
-                    for l in links_on_page:
-                        # if it has a link to the current url, sum up pagerank from step before and divide by the amount of links
-                        if url == l:
-                            u = TextWrangler.get_last_part_of_url(inner_url)
-                            previous_page_rank = self.get_page_rank(u, step-1)
-                            amount_of_links = len(self.links_dictionary[inner_url])
-                            result += previous_page_rank / amount_of_links
+                have_links_to_url = [x for x in self.url_list if x != url and url in self.links_dictionary[x]]
+                for inner_url in have_links_to_url:
+                    u = TextWrangler.get_last_part_of_url(inner_url)
+                    previous_page_rank = self.get_page_rank(u, step-1)
+                    amount_of_links = len(self.links_dictionary[inner_url])
+                    result += previous_page_rank / amount_of_links
                 page_rank = self.calculate_page_rank(result, step)
                 self.set_page_rank(TextWrangler.get_last_part_of_url(url), step, page_rank)
         if step < 1:
